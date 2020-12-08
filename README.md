@@ -14,6 +14,7 @@
         gpu_num: 4, sec/epoch: 6.83
 
 ## reference
+    https://github.com/google-research/albert/blob/master/lamb_optimizer.py
     https://github.com/google-research/albert/blob/master/optimization.py
     https://wizardforcel.gitbooks.io/tensorflow-examples-aymericdamien/content/6.2_multigpu_cnn.html
     
