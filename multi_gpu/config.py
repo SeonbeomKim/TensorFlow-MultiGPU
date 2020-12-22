@@ -18,6 +18,7 @@ class FLAGS:
         self.clip_norm = 1.0
         self.colocate_gradients_with_ops = True
 
+        self.log_step_count_steps = 100 # estimator train info step
     def show_flags(self):
         print('flags:')
         for key, value in self.__dict__.items():

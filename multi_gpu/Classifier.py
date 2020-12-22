@@ -2,8 +2,11 @@ from collections import namedtuple
 
 import tensorflow as tf
 
-from Model import SimpleCNN as Model
-from optimization import create_optimizer
+from multi_gpu.Model import SimpleCNN as Model
+from multi_gpu.optimization import create_optimizer
+import multi_gpu.config as config
+
+FLAGS = config.FLAGS()
 
 
 class Classifier(Model):
@@ -19,7 +22,7 @@ class Classifier(Model):
         super(Classifier, self).build_model(model_input, keep_prob)
         o = self.get_output_layer()
         with tf.variable_scope(self.scope, reuse=tf.AUTO_REUSE):
-            self.predict = tf.layers.dense(o, units=self.flag.label_num, activation=None)
+            self.predict = tf.layers.dense(o, units=FLAGS.label_num, activation=None)
 
     def build_loss(self, predict, label):
         self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
@@ -30,16 +33,18 @@ class Classifier(Model):
         with tf.variable_scope(self.scope, reuse=tf.AUTO_REUSE):
             self.train_op, self.learning_rate_op, self.global_step_op = \
                 create_optimizer(loss,
-                                 self.flag.init_lr,
-                                 self.flag.num_train_steps,
-                                 self.flag.num_warmup_steps,
+                                 FLAGS.init_lr,
+                                 FLAGS.num_train_steps,
+                                 FLAGS.num_warmup_steps,
                                  use_tpu=False,
-                                 optimizer=self.flag.optimizer,
-                                 clip_norm=self.flag.clip_norm,
+                                 optimizer=FLAGS.optimizer,
+                                 clip_norm=FLAGS.clip_norm,
                                  colocate_gradients_with_ops=colocate_gradients_with_ops)
 
     def build_metric(self, predict, label):
         self.metric = tf.reduce_sum(tf.cast(tf.equal(tf.argmax(predict, 1), tf.argmax(label, 1)), tf.int32))
+        self.accuracy = tf.metrics.accuracy(labels=tf.argmax(label, 1),
+                                                predictions=tf.argmax(predict, 1))
 
     def get_placeholders(self):
         placeholders = super(Classifier, self).get_placeholders()
@@ -57,6 +62,9 @@ class Classifier(Model):
 
     def get_metric(self):
         return self.metric
+
+    def get_accuracy(self):
+        return self.accuracy
 
     def get_train_op(self):
         return self.train_op

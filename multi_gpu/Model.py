@@ -1,12 +1,12 @@
 from collections import namedtuple
-
+import multi_gpu.config as config
 import tensorflow as tf
 
+FLAGS = config.FLAGS()
 
 class SimpleCNN:
-    def __init__(self, flag, seed=777):
+    def __init__(self, seed=777):
         tf.set_random_seed(seed)
-        self.flag = flag
 
     def build_placeholders(self):
         self.model_input = tf.placeholder(tf.float32, [None, 784])
@@ -14,7 +14,7 @@ class SimpleCNN:
 
     def build_model(self, model_input, keep_prob):
         with tf.variable_scope('SimpleCNN', reuse=tf.AUTO_REUSE):
-            model_input = tf.reshape(model_input, (-1, self.flag.height, self.flag.width, self.flag.channel))
+            model_input = tf.reshape(model_input, (-1, FLAGS.height, FLAGS.width, FLAGS.channel))
 
             layer1 = tf.layers.conv2d(model_input, filters=256, kernel_size=[3, 3], strides=[1, 1], padding='SAME',
                                       activation=tf.nn.relu)

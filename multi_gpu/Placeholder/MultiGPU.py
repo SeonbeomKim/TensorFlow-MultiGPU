@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from Classifier import Classifier as TASK
+from multi_gpu.Classifier import Classifier as TASK
 
 
 class MultiGPU(TASK):
